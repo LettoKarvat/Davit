@@ -257,7 +257,7 @@ export default function App() {
             {[
               { name: "Português", level: 100 },
               { name: "Armênio (nativo)", level: 100 },
-              { name: "Inglês", level: 87 },
+              { name: "Inglês", level: 75 },
             ].map(({ name, level }) => (
               <div key={name}>
                 <div className="flex justify-between mb-1">
@@ -306,7 +306,7 @@ export default function App() {
               <div>
                 <h4 className="font-semibold text-slate-800">Telefone</h4>
                 <a
-                  href="tel:+5547996482135"
+                  href="https://wa.me/5547996482135?text=Olá%20Davit!"
                   className="text-slate-600 hover:text-amber-600"
                 >
                   (47) 99648-2135
@@ -329,7 +329,7 @@ export default function App() {
           {/* Redes sociais */}
           <div className="flex justify-center space-x-6 mt-8">
             <a
-              href="www.linkedin.com/in/davit-markaryants-824188294"
+              href="https://linkedin.com/in/davit-markaryants-824188294"
               className="flex items-center space-x-2 bg-slate-800 text-white px-6 py-3 rounded-lg hover:bg-slate-700 transition-colors"
             >
               <Linkedin size={20} />
