@@ -93,7 +93,7 @@ const downloadPDF = () => {
   doc.setTextColor(darkColor);
   doc.setFont("helvetica", "normal");
   const aboutText =
-    "Acadêmico de Administração com experiência sólida em processos administrativos, controle de almoxarifado, compras, atendimento ao público e vendas. Procuro oportunidade como Assistente Administrativo ou áreas correlatas para aplicar minha organização, visão sistêmica e foco em melhoria contínua, contribuindo com proatividade, facilidade de comunicação e resultados em ambientes dinâmicos.";
+    "Acadêmico de Administração com experiência sólida em processos administrativos, controle de almoxarifado, compras, atendimento ao público e vendas. Procuro oportunidade como Assistente Administrativo ou áreas relacionadas para aplicar minha organização, visão sistêmica e foco em melhoria contínua, contribuindo com proatividade, facilidade de comunicação e resultados em ambientes dinâmicos.";
   yPosition = addText(aboutText, margin, yPosition, contentWidth, bodySize);
 
   yPosition += 10;

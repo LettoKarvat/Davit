@@ -120,7 +120,7 @@ export default function App() {
             Acadêmico de Administração com experiência sólida em processos
             administrativos, controle de almoxarifado, compras, atendimento ao
             público e vendas. Procuro oportunidade como Assistente
-            Administrativo ou áreas correlatas para aplicar minha organização,
+            Administrativo ou áreas relacionadas para aplicar minha organização,
             visão sistêmica e foco em melhoria contínua, contribuindo com
             proatividade, facilidade de comunicação e resultados em ambientes
             dinâmicos.
@@ -329,7 +329,7 @@ export default function App() {
           {/* Redes sociais */}
           <div className="flex justify-center space-x-6 mt-8">
             <a
-              href="https://linkedin.com/in/davit-markaryants-824188294"
+              href="www.linkedin.com/in/davit-markaryants-824188294"
               className="flex items-center space-x-2 bg-slate-800 text-white px-6 py-3 rounded-lg hover:bg-slate-700 transition-colors"
             >
               <Linkedin size={20} />
