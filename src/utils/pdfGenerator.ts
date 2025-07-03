@@ -1,233 +1,357 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { jsPDF } from "jspdf";
 
-export const downloadPDF = async () => {
-  try {
-    // Criar conteúdo do currículo baseado nas informações reais
-    const resumeContent = createResumeHTML();
-    
-    // Criar div temporária para renderizar o conteúdo
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = resumeContent;
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    tempDiv.style.top = '0';
-    tempDiv.style.width = '210mm';
-    tempDiv.style.background = 'white';
-    tempDiv.style.padding = '20mm';
-    tempDiv.style.fontFamily = 'Arial, sans-serif';
-    
-    document.body.appendChild(tempDiv);
-    
-    // Gerar canvas do conteúdo
-    const canvas = await html2canvas(tempDiv, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff'
-    });
-    
-    // Remover div temporária
-    document.body.removeChild(tempDiv);
-    
-    // Criar PDF
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    const imgData = canvas.toDataURL('image/png');
-    const imgWidth = 210;
-    const pageHeight = 297;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let heightLeft = imgHeight;
-    let position = 0;
-    
-    // Adicionar primeira página
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-    
-    // Adicionar páginas adicionais se necessário
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+const downloadPDF = () => {
+  // Create new PDF document
+  const doc = new jsPDF("p", "mm", "a4");
+
+  // Colors
+  const primaryColor = "#059669"; // Emerald-600
+  const darkColor = "#1f2937"; // Gray-800
+  const lightColor = "#6b7280"; // Gray-500
+
+  // Fonts and sizes
+  const titleSize = 24;
+  const subtitleSize = 14;
+  const headerSize = 16;
+  const bodySize = 11;
+  const smallSize = 10;
+
+  // Page margins
+  const margin = 20;
+  const pageWidth = 210;
+  const contentWidth = pageWidth - margin * 2;
+
+  let yPosition = margin;
+
+  // Helper function to add text with word wrapping
+  const addText = (
+    text: string,
+    x: number,
+    y: number,
+    maxWidth: number,
+    fontSize: number,
+    style = "normal"
+  ) => {
+    doc.setFontSize(fontSize);
+    const lines = doc.splitTextToSize(text, maxWidth);
+
+    if (style === "bold") {
+      doc.setFont("helvetica", "bold");
+    } else {
+      doc.setFont("helvetica", "normal");
     }
-    
-    // Baixar o PDF
-    pdf.save('Davit_Markaryants_Curriculo.pdf');
-  } catch (error) {
-    console.error('Erro ao gerar PDF:', error);
-    alert('Erro ao gerar PDF. Tente novamente.');
-  }
+
+    doc.text(lines, x, y);
+    return y + lines.length * (fontSize * 0.4);
+  };
+
+  // ==================== PRIMEIRA PÁGINA ====================
+
+  // Header Section
+  doc.setFillColor(15, 23, 42); // slate-900
+  doc.rect(0, 0, pageWidth, 70, "F");
+
+  // Name
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(titleSize);
+  doc.setFont("helvetica", "bold");
+  doc.text("Davit Markaryants", margin, 25);
+
+  // Title
+  doc.setFontSize(subtitleSize);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(203, 213, 225); // slate-300
+  doc.text(
+    "Acadêmico de Administração (8º período) & Assistente Administrativo",
+    margin,
+    35
+  );
+
+  // Contact Info
+  doc.setFontSize(smallSize);
+  doc.setTextColor(148, 163, 184); // slate-400
+  doc.text("Email: davitermeliksetyan@gmail.com", margin, 48);
+  doc.text("Telefone: (47) 99648-2135", margin, 55);
+  doc.text("Localização: São Bento do Sul / SC • Remoto", margin, 62);
+
+  // Reset text color for body content
+  doc.setTextColor(darkColor);
+  yPosition = 85;
+
+  // About Section
+  doc.setFontSize(headerSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryColor);
+  doc.text("SOBRE MIM", margin, yPosition);
+
+  // Add underline
+  doc.setLineWidth(0.5);
+  doc.setDrawColor(primaryColor);
+  doc.line(margin, yPosition + 2, margin + 40, yPosition + 2);
+
+  yPosition += 8;
+  doc.setTextColor(darkColor);
+  doc.setFont("helvetica", "normal");
+  const aboutText =
+    "Acadêmico de Administração com experiência sólida em processos administrativos, controle de almoxarifado, compras, atendimento ao público e vendas. Procuro oportunidade como Assistente Administrativo ou áreas correlatas para aplicar minha organização, visão sistêmica e foco em melhoria contínua, contribuindo com proatividade, facilidade de comunicação e resultados em ambientes dinâmicos.";
+  yPosition = addText(aboutText, margin, yPosition, contentWidth, bodySize);
+
+  yPosition += 10;
+
+  // Experience Section
+  doc.setFontSize(headerSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryColor);
+  doc.text("EXPERIÊNCIA PROFISSIONAL", margin, yPosition);
+  doc.line(margin, yPosition + 2, margin + 70, yPosition + 2);
+
+  yPosition += 12;
+
+  // Experience 1
+  doc.setFontSize(subtitleSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(darkColor);
+  doc.text("Estagiário Administrativo", margin, yPosition);
+
+  doc.setFontSize(bodySize);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(primaryColor);
+  doc.text("set 2023 – set 2025", pageWidth - margin - 30, yPosition);
+
+  yPosition += 6;
+  doc.setTextColor(lightColor);
+  doc.text("Tribunal de Justiça de Santa Catarina", margin, yPosition);
+
+  yPosition += 8;
+  doc.setTextColor(darkColor);
+  doc.setFontSize(smallSize);
+
+  const exp1Tasks = [
+    "• Organização e controle de patrimônio e estoque",
+    "• Controle de folhas ponto dos terceirizados",
+    "• Elaboração de requisições de compra",
+    "• Uso de ERP, SEI, Pergamum e Teams",
+    "• Organização de documentos físicos e digitais",
+  ];
+
+  exp1Tasks.forEach((task) => {
+    doc.text(task, margin + 5, yPosition);
+    yPosition += 4;
+  });
+
+  yPosition += 6;
+
+  // Experience 2
+  doc.setFontSize(subtitleSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(darkColor);
+  doc.text("Vendedor (Temporário)", margin, yPosition);
+
+  doc.setFontSize(bodySize);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(primaryColor);
+  doc.text("dez 2022 – fev 2023", pageWidth - margin - 30, yPosition);
+
+  yPosition += 6;
+  doc.setTextColor(lightColor);
+  doc.text("Loja de Aparelhos Eletrônicos & Celulares", margin, yPosition);
+
+  yPosition += 8;
+  doc.setTextColor(darkColor);
+  doc.setFontSize(smallSize);
+
+  const exp2Tasks = [
+    "• Venda consultiva de celulares e acessórios",
+    "• Atingimento de metas mensais",
+    "• Suporte pós-venda e dúvidas técnicas",
+  ];
+
+  exp2Tasks.forEach((task) => {
+    doc.text(task, margin + 5, yPosition);
+    yPosition += 4;
+  });
+
+  // ==================== SEGUNDA PÁGINA ====================
+
+  // Add new page
+  doc.addPage();
+  yPosition = margin;
+
+  // Skills Section
+  doc.setFontSize(headerSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryColor);
+  doc.text("HABILIDADES", margin, yPosition);
+  doc.line(margin, yPosition + 2, margin + 35, yPosition + 2);
+
+  yPosition += 12;
+
+  // Technical Skills
+  doc.setFontSize(subtitleSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(darkColor);
+  doc.text("Técnicas:", margin, yPosition);
+
+  yPosition += 6;
+  doc.setFontSize(smallSize);
+  doc.setFont("helvetica", "normal");
+
+  const techSkills = [
+    "• Gestão de processos administrativos",
+    "• Controle de estoque e patrimônio",
+    "• Compras e negociação com fornecedores",
+    "• ERP, SEI, Pergamum, Teams",
+    "• Excel Básico",
+  ];
+
+  techSkills.forEach((skill) => {
+    doc.text(skill, margin + 5, yPosition);
+    yPosition += 4;
+  });
+
+  // Behavioral Skills (next to technical)
+  let behavioralY = yPosition - techSkills.length * 4 - 6;
+  doc.setFontSize(subtitleSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(darkColor);
+  doc.text("Comportamentais:", margin + 95, behavioralY);
+
+  behavioralY += 6;
+  doc.setFontSize(smallSize);
+  doc.setFont("helvetica", "normal");
+
+  const behavioralSkills = [
+    "• Sociabilidade e trabalho em equipe",
+    "• Proatividade & aprendizado rápido",
+    "• Organização e visão sistêmica",
+    "• Boa comunicação e honestidade",
+  ];
+
+  behavioralSkills.forEach((skill) => {
+    doc.text(skill, margin + 100, behavioralY);
+    behavioralY += 4;
+  });
+
+  yPosition += 10;
+
+  // Education Section
+  doc.setFontSize(headerSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryColor);
+  doc.text("FORMAÇÃO", margin, yPosition);
+  doc.line(margin, yPosition + 2, margin + 30, yPosition + 2);
+
+  yPosition += 12;
+
+  doc.setFontSize(subtitleSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(darkColor);
+  doc.text("Bacharelado em Administração", margin, yPosition);
+
+  doc.setFontSize(bodySize);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(primaryColor);
+  doc.text("Conclusão: dez 2026", pageWidth - margin - 30, yPosition);
+
+  yPosition += 6;
+  doc.setTextColor(lightColor);
+  doc.text("Univille Universidade – São Bento do Sul / SC", margin, yPosition);
+
+  yPosition += 20;
+
+  // Languages Section
+  doc.setFontSize(headerSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryColor);
+  doc.text("IDIOMAS", margin, yPosition);
+  doc.line(margin, yPosition + 2, margin + 25, yPosition + 2);
+
+  yPosition += 12;
+  doc.setFontSize(smallSize);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(darkColor);
+
+  const languages = [
+    "• Português – Fluente",
+    "• Armênio – Nativo",
+    "• Inglês – Intermediário a Avançado (Business English em desenvolvimento)",
+  ];
+
+  languages.forEach((lang) => {
+    doc.text(lang, margin + 5, yPosition);
+    yPosition += 5;
+  });
+
+  yPosition += 10;
+
+  // Additional Information Section
+  doc.setFontSize(headerSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryColor);
+  doc.text("INFORMAÇÕES ADICIONAIS", margin, yPosition);
+  doc.line(margin, yPosition + 2, margin + 65, yPosition + 2);
+
+  yPosition += 12;
+  doc.setFontSize(smallSize);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(darkColor);
+
+  const additionalInfo = [
+    "• Disponibilidade para início imediato.",
+    "• CNH.",
+    "• Disponibilidade para viagens.",
+  ];
+
+  additionalInfo.forEach((info) => {
+    doc.text(info, margin + 5, yPosition);
+    yPosition += 5;
+  });
+
+  yPosition += 15;
+
+  // Contact Section
+  doc.setFontSize(headerSize);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryColor);
+  doc.text("CONTATO", margin, yPosition);
+  doc.line(margin, yPosition + 2, margin + 25, yPosition + 2);
+
+  yPosition += 12;
+
+  doc.setFontSize(smallSize);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(darkColor);
+
+  // Contact details
+  doc.text("Email: davitermeliksetyan@gmail.com", margin + 5, yPosition);
+  yPosition += 5;
+  doc.text("Telefone: (47) 99648-2135", margin + 5, yPosition);
+  yPosition += 5;
+  doc.text(
+    "Localização: São Bento do Sul / SC • Remoto",
+    margin + 5,
+    yPosition
+  );
+  yPosition += 5;
+  doc.text(
+    "LinkedIn: linkedin.com/in/davit-markaryants-824188294",
+    margin + 5,
+    yPosition
+  );
+
+  // Footer
+  yPosition = 280;
+  doc.setFontSize(smallSize);
+  doc.setTextColor(lightColor);
+  doc.setFont("helvetica", "italic");
+  doc.text(
+    "© 2025 Davit Markaryants. Todos os direitos reservados.",
+    margin,
+    yPosition
+  );
+
+  // Save the PDF
+  doc.save("Davit_Markaryants_Curriculo.pdf");
 };
 
-const createResumeHTML = () => {
-  return `
-    <div style="max-width: 210mm; margin: 0 auto; padding: 20mm; background: white; font-family: Arial, sans-serif; line-height: 1.6;">
-      <!-- Cabeçalho -->
-      <div style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #F59E0B; padding-bottom: 20px;">
-        <h1 style="font-size: 36px; margin: 0; color: #1E293B; font-weight: bold;">Davit Markaryants</h1>
-        <p style="font-size: 18px; margin: 10px 0; color: #F59E0B; font-weight: 600;">Desenvolvedor Full Stack & Especialista em Tecnologia</p>
-        <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px; flex-wrap: wrap;">
-          <span style="color: #64748B;">📧 davit.markaryants@email.com</span>
-          <span style="color: #64748B;">📱 +1 (555) 123-4567</span>
-          <span style="color: #64748B;">🌐 Disponível para Trabalho Remoto</span>
-        </div>
-      </div>
-
-      <!-- Resumo Profissional -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #1E293B; border-bottom: 2px solid #F59E0B; padding-bottom: 5px; margin-bottom: 15px;">Resumo Profissional</h2>
-        <p style="color: #374151; text-align: justify;">
-          Profissional de tecnologia com vasta experiência em desenvolvimento de software e liderança técnica. 
-          Especializado em criar soluções inovadoras e escaláveis, com foco em transformação digital e 
-          otimização de processos. Apaixonado por tecnologias emergentes e metodologias ágeis.
-        </p>
-      </div>
-
-      <!-- Experiência -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #1E293B; border-bottom: 2px solid #F59E0B; padding-bottom: 5px; margin-bottom: 20px;">Experiência Profissional</h2>
-        
-        <div style="margin-bottom: 25px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-            <div>
-              <h3 style="color: #1E293B; margin: 0; font-size: 18px;">Especialista Sênior em Tecnologia</h3>
-              <p style="color: #F59E0B; margin: 5px 0; font-weight: 600;">Innovation Tech Solutions</p>
-            </div>
-            <span style="color: #64748B; font-weight: 500;">2022 - Presente</span>
-          </div>
-          <ul style="color: #374151; margin-left: 20px;">
-            <li>Liderança de iniciativas estratégicas de tecnologia e projetos de transformação digital</li>
-            <li>Implementação de soluções escaláveis que melhoraram performance do sistema em 40%</li>
-            <li>Liderança de equipes multifuncionais com 15+ profissionais em projetos críticos</li>
-            <li>Desenvolvimento de frameworks inovadores que reduziram tempo de desenvolvimento em 30%</li>
-            <li>Mentoria de desenvolvedores júnior e estabelecimento de diretrizes de melhores práticas</li>
-          </ul>
-        </div>
-
-        <div style="margin-bottom: 25px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-            <div>
-              <h3 style="color: #1E293B; margin: 0; font-size: 18px;">Consultor de Tecnologia</h3>
-              <p style="color: #F59E0B; margin: 5px 0; font-weight: 600;">Digital Solutions Group</p>
-            </div>
-            <span style="color: #64748B; font-weight: 500;">2020 - 2022</span>
-          </div>
-          <ul style="color: #374151; margin-left: 20px;">
-            <li>Consultoria estratégica em tecnologia para clientes empresariais</li>
-            <li>Entrega bem-sucedida de 25+ projetos com 98% de taxa de satisfação</li>
-            <li>Design e implementação de soluções customizadas para empresas Fortune 500</li>
-            <li>Redução de custos operacionais em média de 25% para organizações clientes</li>
-            <li>Construção de parcerias estratégicas de longo prazo com stakeholders-chave</li>
-          </ul>
-        </div>
-
-        <div style="margin-bottom: 25px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-            <div>
-              <h3 style="color: #1E293B; margin: 0; font-size: 18px;">Especialista em Desenvolvimento de Software</h3>
-              <p style="color: #F59E0B; margin: 5px 0; font-weight: 600;">Tech Innovations Inc.</p>
-            </div>
-            <span style="color: #64748B; font-weight: 500;">2018 - 2020</span>
-          </div>
-          <ul style="color: #374151; margin-left: 20px;">
-            <li>Desenvolvimento e manutenção de aplicações enterprise usando tecnologias modernas</li>
-            <li>Construção de aplicações robustas servindo 100.000+ usuários ativos diários</li>
-            <li>Otimização de performance de banco de dados resultando em 50% de melhoria nos tempos de consulta</li>
-            <li>Colaboração com equipes UX para melhorar métricas de experiência do usuário</li>
-            <li>Implementação de protocolos de testes automatizados melhorando qualidade do código</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Habilidades -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #1E293B; border-bottom: 2px solid #F59E0B; padding-bottom: 5px; margin-bottom: 15px;">Habilidades Técnicas</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-          <div>
-            <h4 style="color: #1E293B; margin-bottom: 10px;">Linguagens de Programação</h4>
-            <p style="color: #374151;">JavaScript/TypeScript, Python, Java, C#, Go</p>
-            
-            <h4 style="color: #1E293B; margin-bottom: 10px; margin-top: 15px;">Bancos de Dados</h4>
-            <p style="color: #374151;">PostgreSQL, MongoDB, Redis, Elasticsearch, GraphQL</p>
-          </div>
-          <div>
-            <h4 style="color: #1E293B; margin-bottom: 10px;">Frameworks & Ferramentas</h4>
-            <p style="color: #374151;">React/Next.js, Node.js, Spring Boot, Django, Vue.js</p>
-            
-            <h4 style="color: #1E293B; margin-bottom: 10px; margin-top: 15px;">Cloud & DevOps</h4>
-            <p style="color: #374151;">AWS, Docker, Kubernetes, CI/CD, Terraform</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Projetos -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #1E293B; border-bottom: 2px solid #F59E0B; padding-bottom: 5px; margin-bottom: 15px;">Projetos em Destaque</h2>
-        
-        <div style="margin-bottom: 15px;">
-          <h4 style="color: #1E293B; margin-bottom: 5px;">Plataforma de Analytics Empresarial</h4>
-          <p style="color: #374151; margin: 5px 0;">Plataforma abrangente de análise de dados que processa mais de 1M de transações diárias, fornecendo insights em tempo real e análises preditivas para clientes empresariais.</p>
-          <p style="color: #64748B; font-size: 14px;">Tecnologias: React, Node.js, PostgreSQL, AWS, D3.js</p>
-        </div>
-
-        <div style="margin-bottom: 15px;">
-          <h4 style="color: #1E293B; margin-bottom: 5px;">Gerenciador de Infraestrutura Cloud</h4>
-          <p style="color: #374151; margin: 5px 0;">Sistema automatizado de gerenciamento de infraestrutura cloud que otimiza alocação de recursos e reduz custos operacionais em 35% através de escalonamento inteligente.</p>
-          <p style="color: #64748B; font-size: 14px;">Tecnologias: Python, Kubernetes, Docker, Terraform, Grafana</p>
-        </div>
-      </div>
-
-      <!-- Formação -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #1E293B; border-bottom: 2px solid #F59E0B; padding-bottom: 5px; margin-bottom: 20px;">Formação</h2>
-        
-        <div style="margin-bottom: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
-            <div>
-              <h3 style="color: #1E293B; margin: 0; font-size: 16px;">Mestrado em Ciência da Computação</h3>
-              <p style="color: #F59E0B; margin: 5px 0; font-weight: 600;">Technology University</p>
-            </div>
-            <span style="color: #64748B; font-weight: 500;">2016 - 2018</span>
-          </div>
-          <p style="color: #374151; margin: 5px 0;">GPA: 3.9/4.0 • Magna Cum Laude</p>
-          <p style="color: #374151; margin: 5px 0;">Especialização em Inteligência Artificial e Machine Learning com foco em sistemas distribuídos e análise de dados.</p>
-        </div>
-
-        <div style="margin-bottom: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;">
-            <div>
-              <h3 style="color: #1E293B; margin: 0; font-size: 16px;">Bacharelado em Tecnologia da Informação</h3>
-              <p style="color: #F59E0B; margin: 5px 0; font-weight: 600;">State University</p>
-            </div>
-            <span style="color: #64748B; font-weight: 500;">2012 - 2016</span>
-          </div>
-          <p style="color: #374151; margin: 5px 0;">GPA: 3.8/4.0 • Cum Laude</p>
-          <p style="color: #374151; margin: 5px 0;">Base abrangente em fundamentos da ciência da computação com ênfase em desenvolvimento de software e design de sistemas.</p>
-        </div>
-      </div>
-
-      <!-- Certificações -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #1E293B; border-bottom: 2px solid #F59E0B; padding-bottom: 5px; margin-bottom: 15px;">Certificações</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <p style="color: #374151; margin: 5px 0;">• AWS Solutions Architect (2023)</p>
-          <p style="color: #374151; margin: 5px 0;">• Kubernetes Administrator (2022)</p>
-          <p style="color: #374151; margin: 5px 0;">• Advanced React Development (2022)</p>
-          <p style="color: #374151; margin: 5px 0;">• Machine Learning Specialization (2021)</p>
-        </div>
-      </div>
-
-      <!-- Rodapé -->
-      <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
-        <p style="color: #64748B; font-size: 14px;">
-          LinkedIn: linkedin.com/in/davitmarkaryants • GitHub: github.com/davitmarkaryants
-        </p>
-      </div>
-    </div>
-  `;
-};
+export default downloadPDF;
